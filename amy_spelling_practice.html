@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amy 专属单词拼写练习</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f6e7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            color: #ff6f61;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+        }
+        .hint {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #4a90e2;
+        }
+        input[type="text"] {
+            padding: 15px;
+            font-size: 20px;
+            width: 75%;
+            margin: 0 auto 20px;
+            display: block;
+            border: 2px solid #ff6f61;
+            border-radius: 10px;
+            outline: none;
+        }
+        input[type="text"]:focus {
+            border-color: #4a90e2;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 20px;
+            background-color: #ff6f61;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #ff4a3d;
+        }
+        .result {
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .correct {
+            color: #4caf50;
+        }
+        .incorrect {
+            color: #ff4a3d;
+        }
+        .category-buttons {
+            margin-bottom: 20px;
+        }
+        .category-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4a90e2;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .category-buttons button:hover {
+            background-color: #357abd;
+        }
+        .navigation-buttons {
+            margin-top: 20px;
+        }
+        .navigation-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4a90e2;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .navigation-buttons button:hover {
+            background-color: #357abd;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Amy 专属单词拼写练习</h1>
+        <div class="category-buttons" id="categoryButtons">
+            <button onclick="selectCategory('Unit 1')">Unit 1</button>
+            <button onclick="selectCategory('Unit 2')">Unit 2</button>
+            <button onclick="selectCategory('Unit 3')">Unit 3</button>
+            <button onclick="selectCategory('Unit 4')">Unit 4</button>
+        </div>
+        <div class="hint" id="hintDisplay">请选择一个分类开始</div>
+        <input type="text" id="spellingInput" placeholder="请输入拼写" autocomplete="off">
+        <button onclick="checkSpelling()">检查</button>
+        <div class="result" id="result"></div>
+        <div class="navigation-buttons">
+            <button onclick="previousWord()">上一个</button>
+            <button onclick="nextWord()">下一个</button>
+        </div>
+    </div>
+
+    <script>
+        // 单词分类和对应的中文提示
+        const wordCategories = {
+            "Unit 1": [
+                { hint: "阅读", word: "read" },
+                { hint: "唱歌", word: "sing" },
+                { hint: "用颜料画", word: "paint" },
+                { hint: "跳舞", word: "dance" },
+                { hint: "游泳", word: "swim" },
+                { hint: "打篮球", word: "play basketball" },
+                { hint: "打乒乓球", word: "play ping-pong" },
+                { hint: "踢足球", word: "play football" },
+                { hint: "女士", word: "Ms" },
+                { hint: "业余爱好", word: "hobby" },
+                { hint: "做，干，办（某事）", word: "do" },
+                { hint: "空闲的", word: "free" }
+            ],
+            "Unit 2": [
+                { hint: "做游戏", word: "play a game" },
+                { hint: "拍照", word: "take a photo" },
+                { hint: "划船", word: "row a boat" },
+                { hint: "爬山", word: "climb a mountain" },
+                { hint: "讲故事", word: "tell a story" },
+                { hint: "好极的", word: "great" },
+                { hint: "（与......）见面", word: "meet" },
+                { hint: "参与", word: "join" },
+                { hint: "她的", word: "her" },
+                { hint: "我们", word: "we" },
+                { hint: "我们的", word: "our" },
+                { hint: "玩沙滩排球", word: "play beach volleyball" }
+            ],
+            "Unit 3": [
+                { hint: "毛衣", word: "sweater" },
+                { hint: "短袖汗衫", word: "T-shirt" },
+                { hint: "女裙", word: "skirt" },
+                { hint: "衬衫", word: "shirt" },
+                { hint: "裤子", word: "trousers" },
+                { hint: "短裤", word: "shorts" },
+                { hint: "便帽", word: "cap" },
+                { hint: "鞋子", word: "shoes" },
+                { hint: "穿；佩戴", word: "wear" },
+                { hint: "窗户", word: "window" },
+                { hint: "学校", word: "school" },
+                { hint: "看一看", word: "take a look" },
+                { hint: "当然", word: "of course" },
+                { hint: "一条；一双；一对", word: "a pair of" }
+            ],
+            "Unit 4": [
+                { hint: "草", word: "grass" },
+                { hint: "河", word: "river" },
+                { hint: "鸟", word: "bird" },
+                { hint: "鸭子", word: "duck" },
+                { hint: "蜜蜂", word: "bee" },
+                { hint: "湖", word: "lake" },
+                { hint: "鸟叫声", word: "chirp" },
+                { hint: "蜜蜂声", word: "buzz" },
+                { hint: "在......旁边", word: "by" },
+                { hint: "经过", word: "past" },
+                { hint: "走", word: "walk" },
+                { hint: "再一次", word: "again" },
+                { hint: "回家", word: "go home" }
+            ]
+        };
+
+        let currentCategory = null;
+        let currentWordIndex = 0;
+        let shuffledWords = [];
+
+        // 打乱数组顺序
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // 选择分类
+        function selectCategory(category) {
+            currentCategory = category;
+            shuffledWords = shuffleArray([...wordCategories[category]]); // 打乱单词顺序
+            currentWordIndex = 0;
+            displayHint();
+            document.getElementById('spellingInput').value = '';
+            document.getElementById('result').textContent = '';
+        }
+
+        // 显示中文提示
+        function displayHint() {
+            if (currentCategory) {
+                const hint = shuffledWords[currentWordIndex].hint;
+                document.getElementById('hintDisplay').textContent = hint;
+            }
+        }
+
+       // 检查拼写（保留大小写）
+function checkSpelling() {
+    if (!currentCategory) return;
+
+    const userInput = document.getElementById('spellingInput').value.trim(); // 去除空格，保留大小写
+    const correctWord = shuffledWords[currentWordIndex].word; // 保留大小写
+    const resultDiv = document.getElementById('result');
+
+    if (userInput === correctWord) {
+        resultDiv.textContent = "正确！";
+        resultDiv.className = "result correct";
+        playSound('Excellent 乐乐.mp3');
+    } else {
+        resultDiv.textContent = `错误，正确拼写是：${correctWord}`;
+        resultDiv.className = "result incorrect";
+        playSound('乐乐加油.mp3');
+    }
+
+    resultDiv.style.opacity = 1;
+
+    document.getElementById('spellingInput').value = '';
+
+    currentWordIndex = (currentWordIndex + 1) % shuffledWords.length;
+    setTimeout(() => {
+        displayHint();
+        resultDiv.style.opacity = 0;
+    }, 2000);
+}
+
+        // 上一个单词
+        function previousWord() {
+            if (currentCategory && currentWordIndex > 0) {
+                currentWordIndex--;
+                displayHint();
+                document.getElementById('spellingInput').value = '';
+                document.getElementById('result').textContent = '';
+            }
+        }
+
+        // 下一个单词
+        function nextWord() {
+            if (currentCategory && currentWordIndex < shuffledWords.length - 1) {
+                currentWordIndex++;
+                displayHint();
+                document.getElementById('spellingInput').value = '';
+                document.getElementById('result').textContent = '';
+            }
+        }
+
+        // 播放音效
+        function playSound(soundFile) {
+            const audio = new Audio();
+            audio.src = soundFile;
+            audio.play();
+        }
+
+        // 初始化
+        function init() {
+            displayHint();
+        }
+
+        init();
+    </script>
+
+</body>
+</html>
